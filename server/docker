@@ -1,0 +1,15 @@
+# ─── Build stage ───────────────────────────────────────────────────
+FROM python:3.11-slim AS build
+WORKDIR /app
+COPY server/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip cache purge
+
+# ─── Runtime image ─────────────────────────────────────────────────
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 \
+    PORT=8080               # Cloud Run expects 8080
+COPY --from=build /usr/local /usr/local
+COPY server/ .
+CMD ["python", "app.py"]
