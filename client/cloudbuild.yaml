@@ -1,0 +1,13 @@
+steps:
+  - name: node:20
+    dir: client
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        npm ci
+        npm run build  # output → dist/
+  - name: gcr.io/cloud-builders/gsutil
+    args: ["-m", "rsync", "-r", "-d", "client/dist", "gs://$UI_BUCKET"]
+options:
+  logging: CLOUD_LOGGING_ONLY
